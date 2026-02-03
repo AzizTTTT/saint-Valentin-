@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pour Ines ❤️</title>
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --primary-dark: #d90429;
+            --bg: #fff0f3;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .scene {
+            position: relative;
+            width: 450px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* Enveloppe interactive */
+        .envelope-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 3;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        /* Animation de flottement pour attirer l'attention */
+        .envelope-wrapper:not(.open-state) {
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .envelope-wrapper:hover {
+            filter: brightness(1.1);
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 15px 35px rgba(217, 4, 41, 0.2);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Texte indicateur sur l'enveloppe */
+        .click-hint {
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .heart-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 225px solid transparent;
+            border-right: 225px solid transparent;
+            border-top: 180px solid var(--primary);
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 4;
+        }
+
+        /* La Lettre Format Papier */
+        .letter {
+            position: absolute;
+            width: 400px;
+            height: 250px;
+            background: white;
+            border-radius: 5px;
+            padding: 25px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
+            z-index: 2;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* États d'ouverture */
+        .scene.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .scene.open .letter {
+            opacity: 1;
+            transform: translateY(-120px) scale(1.15); 
+            height: 580px; 
+            z-index: 10;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+
+        .scene.open .envelope-wrapper {
+            transform: translateY(150px);
+            opacity: 0.5;
+            pointer-events: none; /* Désactive le clic après ouverture */
+        }
+
+        /* Design intérieur */
+        .photo {
+            width: 100%;
+            height: 320px;
+            border-radius: 5px;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        h2 { color: var(--primary); font-size: 1.6rem; margin: 10px 0; }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            height: 60px;
+            position: relative;
+            align-items: center;
+        }
+
+        button {
+            padding: 12px 35px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+
+        #yesBtn { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3); }
+        #noBtn { background: #eee; color: #888; position: absolute; right: 20px; }
+
+        #celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            width: 100%;
+            color: var(--primary-dark);
+            font-size: 2.5rem;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scene" id="valentineScene">
+        <div class="envelope-wrapper" id="envWrapper" onclick="openMe()">
+            <div class="flap"></div>
+            <div class="envelope">
+                <div class="heart-icon">❤️</div>
+                <div class="click-hint">Ouvre-moi, Ines</div>
+            </div>
+        </div>
+
+        <div class="letter">
+            <img src="IMG_5457.png" alt="Notre Photo" class="photo">
+            <h2>Ines, veux-tu être ma Valentine ?</h2>
+            <div class="btn-group">
+                <button id="yesBtn" onclick="finish(event)">OUI !</button>
+                <button id="noBtn" onmouseover="runAway(event)">Non</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="celebration">
+        MA INES D'AMOUR, <br>
+        JE SUIS SI HEUREUX D'ÊTRE TON VALENTIN ! <br>
+        PRÉPARE-TOI À NOTRE SOIRÉE EN TÊTE À TÊTE... <br>
+        BEST DAY EVER ! ❤️
+    </div>
+
+    <script>
+        function openMe() {
+            document.getElementById('valentineScene').classList.add('open');
+            document.getElementById('envWrapper').classList.add('open-state');
+        }
+
+        function runAway(e) {
+            e.stopPropagation();
+            const btn = document.getElementById('noBtn');
+            // Zone de fuite élargie pour plus de fun
+            const x = Math.random() * 300 - 150;
+            const y = Math.random() * 200 - 100;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        function finish(e) {
+            e.stopPropagation();
+            document.getElementById('valentineScene').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('valentineScene').style.display = 'none';
+                document.getElementById('celebration').style.display = 'block';
+                launchConfetti();
+            }, 500);
+        }
+
+        function launchConfetti() {
+            const colors = ['#ff4d6d', '#ffb3c1', '#ffd700', '#ffffff'];
+            setInterval(() => {
+                const c = document.createElement('div');
+                c.innerHTML = Math.random() > 0.5 ? '❤️' : '🌸';
+                c.style.position = 'fixed';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.top = '-5vh';
+                c.style.fontSize = Math.random() * 25 + 15 + 'px';
+                c.style.color = colors[Math.floor(Math.random() * colors.length)];
+                c.style.zIndex = '9999';
+                document.body.appendChild(c);
+
+                c.animate([
+                    { transform: 'translateY(0) rotate(0)', opacity: 1 },
+                    { transform: `translateY(110vh) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], { duration: Math.random() * 2000 + 3000 });
+
+                setTimeout(() => c.remove(), 5000);
+            }, 80);
+        }
+    </script>
+</body>
+</html>
